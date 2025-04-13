@@ -7,6 +7,7 @@ import { LogOut, ChevronsLeft, ChevronsRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { motion } from "framer-motion";
+import AddData from "@/components/ui/AddData";
 
 export default function DesktopSideBar() {
   const router = useRouter();
@@ -20,15 +21,24 @@ export default function DesktopSideBar() {
       className="relative h-screen bg-white shadow-sm p-4 flex flex-col justify-between overflow-visible z-50"
     >
       <div className="space-y-4 relative z-50 overflow-visible">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full flex items-center justify-center mb-4"
-        >
-          <Link href="/">
-            <Logo minimized={collapsed} size={collapsed ? 36 : 40} />
+        <div className="relative w-full flex items-center justify-center mb-4">
+          <Link href="/" className="flex items-center w-full justify-center">
+            <Logo minimized={collapsed} />
           </Link>
-        </motion.div>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setCollapsed((prev) => !prev)}
+            className=" cursor-pointer absolute -right-8 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white border border-gray-200 rounded-full shadow flex items-center justify-center z-50"
+          >
+            {collapsed ? <ChevronsRight className="w-4 h-4 text-gray-700" /> : <ChevronsLeft className="w-4 h-4 text-gray-700" />}
+          </motion.button>
+        </div>
+
+        <div className="flex justify-center">
+          <AddData minimized={collapsed} onClick={() => console.log("add")}/>
+        </div>
 
         {Tabs.map((tab) => {
           const isActive = router.pathname === tab.href;
@@ -53,17 +63,6 @@ export default function DesktopSideBar() {
       </div>
 
       <div className="space-y-2 relative z-50 overflow-visible">
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-          <Button
-            variant="whitePrimary"
-            icon={collapsed ? ChevronsRight : ChevronsLeft}
-            className={`w-full ${collapsed ? "justify-center" : "justify-start"} shadow-none`}
-            onClick={() => setCollapsed((prev) => !prev)}
-          >
-            {!collapsed && "Recolher"}
-          </Button>
-        </motion.div>
-
         <Tooltip message="Sair" disabled={!collapsed}>
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="relative z-50 overflow-visible">
             <Button

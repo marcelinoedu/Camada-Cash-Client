@@ -61,5 +61,12 @@ export const ColorVariants = {
       hover: "hover:bg-[#1f49c4] hover:text-[#FFFFFF]",
       ring: "focus:ring-[#2D61F0]",
       border: "border-transparent"
+    },
+    whiteSuccess:{
+      bg: "bg-white",
+      text: "text-gray-700",
+      hover: "hover:bg-emerald-100 hover:text-emerald-600",
+      ring: "focus:ring-emerald-500",
+      border: "border-transparent"
     }
   };

@@ -13,14 +13,14 @@ export default function Logo({ minimized = false }) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex items-center gap-1 select-none bg-transparent px-3 py-2 rounded-xl"
+      className="flex items-center justify-center gap-1 select-none bg-transparent px-1 py-1"
     >
       <Image
         src="/logo.png"
         alt="Logo"
-        width={48}
-        height={48}
-        className="object-contain"
+        width={70}
+        height={70}
+        className=""
         priority
       />
       {!minimized && (
