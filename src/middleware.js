@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/validate-token"];
+const PUBLIC_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/validate-token",
+];
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function middleware(request) {
@@ -14,7 +19,8 @@ export async function middleware(request) {
   if (token) {
     try {
       const { payload } = await jwtVerify(token, SECRET);
-      const isExpired = payload.exp && payload.exp < Math.floor(Date.now() / 1000);
+      const isExpired =
+        payload.exp && payload.exp < Math.floor(Date.now() / 1000);
       if (!isExpired) {
         isAuthenticated = true;
       }

@@ -62,7 +62,7 @@ export default function DesktopSideBar() {
         })}
       </div>
 
-      <div className="space-y-2 relative z-50 overflow-visible">
+      <div className="space-y-2 relative z-10 overflow-visible">
         <Tooltip message="Sair" disabled={!collapsed}>
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="relative z-50 overflow-visible">
             <Button

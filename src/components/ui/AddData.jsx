@@ -2,18 +2,20 @@ import React, { useState } from "react";
 import { Plus, X, TrendingDown, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
+import FormData from "@/components/ui/FormData";
 
-export default function AddData({
-  minimized = false,
-  onClick,
-  mobile = false,
-}) {
+export default function AddData({ minimized = false, onClick, mobile = false }) {
   const [open, setOpen] = useState(false);
+  const [formType, setFormType] = useState(null);
 
   const handleToggle = () => setOpen((prev) => !prev);
 
-  const padding = minimized ? "px-4 py-4" : "px-3 py-2";
-  const iconOnly = minimized ? "px-3 py-2 justify-center" : "";
+
+  const handleSelect = (type) => {
+    setOpen(false);
+    setFormType(type);
+    onClick?.(type);
+  };
 
   const OptionMenuDesktop = () => (
     <motion.div
@@ -27,10 +29,7 @@ export default function AddData({
         variant="whiteSuccess"
         icon={TrendingUp}
         className="w-full justify-start"
-        onClick={() => {
-          setOpen(false);
-          onClick?.("renda");
-        }}
+        onClick={() => handleSelect("renda")}
       >
         Renda
       </Button>
@@ -38,10 +37,7 @@ export default function AddData({
         variant="whiteDanger"
         icon={TrendingDown}
         className="w-full justify-start"
-        onClick={() => {
-          setOpen(false);
-          onClick?.("despesa");
-        }}
+        onClick={() => handleSelect("despesa")}
       >
         Despesa
       </Button>
@@ -52,7 +48,6 @@ export default function AddData({
     <AnimatePresence>
       {open && (
         <>
-          {/* Overlay escuro */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -63,7 +58,6 @@ export default function AddData({
             onClick={() => setOpen(false)}
           />
 
-          {/* Menu de opções flutuante */}
           <motion.div
             key="menu"
             initial={{ opacity: 0, y: 10 }}
@@ -72,26 +66,22 @@ export default function AddData({
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 left-1/2 -translate-x-1/2 flex gap-6 z-[100]"
           >
-            {[
-              {
-                label: "Renda",
-                icon: TrendingUp,
-                color: "bg-emerald-100 text-emerald-600",
-                type: "renda",
-              },
-              {
-                label: "Despesa",
-                icon: TrendingDown,
-                color: "bg-rose-100 text-rose-600",
-                type: "despesa",
-              },
-            ].map((item) => (
+            {[{
+              label: "Renda",
+              icon: TrendingUp,
+              color: "bg-emerald-100 text-emerald-600",
+              type: "renda",
+            }, {
+              label: "Despesa",
+              icon: TrendingDown,
+              color: "bg-rose-100 text-rose-600",
+              type: "despesa",
+            }].map((item) => (
               <div key={item.type} className="flex flex-col items-center gap-1">
                 <motion.button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpen(false);
-                    onClick?.(item.type);
+                    handleSelect(item.type);
                   }}
                   whileTap={{ scale: 0.95 }}
                   className={`w-14 h-14 ${item.color} rounded-full flex items-center justify-center shadow-lg`}
@@ -108,49 +98,60 @@ export default function AddData({
   );
 
   return (
-    <div
-      className={` relative flex items-center justify-center ${
-        mobile ? "z-[100]" : ""
-      }`}
-    >
-      <motion.button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleToggle();
-        }}
-        initial={false}
-        animate={{
-          width: open && mobile ? 140 : "auto",
-          borderRadius: 9999,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className={`cursor-pointer ${
-          mobile
-            ? "fixed bottom-[3rem] left-1/2 -translate-x-1/2 z-[110]"
-            : "relative"
-        } 
-  flex items-center justify-center gap-2 bg-[#2D61F0] text-white font-medium shadow-md px-4 py-3`}
+    <>
+      <div
+        className={` relative flex items-center justify-center ${
+          mobile ? "z-[100]" : ""
+        }`}
       >
-        {open ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-        {!minimized && (
-          <motion.span
-            key={open ? "cancelar" : "adicionar"}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.2 }}
-            className="text-sm"
-          >
-            {open ? "Cancelar" : "Adicionar"}
-          </motion.span>
-        )}
-      </motion.button>
+        <motion.button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggle();
+          }}
+          initial={false}
+          animate={{
+            width: open && mobile ? 140 : "auto",
+            borderRadius: 9999,
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className={`cursor-pointer ${
+            mobile
+              ? "fixed bottom-[3rem] left-1/2 -translate-x-1/2 z-[110]"
+              : "relative"
+          } 
+  flex items-center justify-center gap-2 bg-[#2D61F0] text-white font-medium shadow-md px-4 py-3`}
+        >
+          {open ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+          {!minimized && (
+            <motion.span
+              key={open ? "cancelar" : "adicionar"}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="text-sm"
+            >
+              {open ? "Cancelar" : "Adicionar"}
+            </motion.span>
+          )}
+        </motion.button>
 
-      {mobile ? (
-        OptionMenuMobile()
-      ) : (
-        <AnimatePresence>{open && <OptionMenuDesktop />}</AnimatePresence>
-      )}
-    </div>
+        {mobile ? (
+          OptionMenuMobile()
+        ) : (
+          <AnimatePresence>{open && <OptionMenuDesktop />}</AnimatePresence>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {formType && (
+          <FormData
+            type={formType}
+            onClose={() => setFormType(null)}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
