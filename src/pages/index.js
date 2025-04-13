@@ -1,3 +1,5 @@
+import PrivateLayout from "@/components/layouts/PrivateLayout";
+
 export default function Home() {
   return (
     <div>
@@ -5,3 +7,7 @@ export default function Home() {
     </div>
   );
 }
+
+Home.getLayout = function getLayout(page) {
+  return <PrivateLayout>{page}</PrivateLayout>;
+};

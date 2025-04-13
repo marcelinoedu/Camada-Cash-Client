@@ -1,6 +1,6 @@
 import { Home, List, User, Settings } from "lucide-react";
 
-export const tabs = [
+export const Tabs = [
   {
     label: "Início",
     href: "/",

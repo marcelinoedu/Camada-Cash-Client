@@ -7,7 +7,7 @@ const roboto = Roboto({
   subsets: ["latin"],
 });
 
-export default function Logo() {
+export default function Logo({ minimized = false }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -23,10 +23,11 @@ export default function Logo() {
         className="object-contain"
         priority
       />
-      <span className={`${roboto.className} text-xl font-bold text-[#2D61F0]`}>
-        Camada <span className="font-bold">Cash</span>
-      </span>
-      
+      {!minimized && (
+        <span className={`${roboto.className} text-xl font-bold text-[#2D61F0]`}>
+          Camada <span className="font-bold">Cash</span>
+        </span>
+      )}
     </motion.div>
   );
 }

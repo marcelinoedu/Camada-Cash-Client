@@ -47,5 +47,19 @@ export const ColorVariants = {
       hover: "hover:from-[#1f49c4] hover:to-[#677be5]",
       ring: "focus:ring-[#2D61F0]",
       border: "border-transparent"
+    },
+    whiteDanger: {
+      bg: "bg-white",
+      text: "text-gray-700",
+      hover: "hover:bg-rose-100 hover:text-rose-600",
+      ring: "focus:ring-rose-500",
+      border: "border-transparent"
+    },
+    whitePrimary: {
+      bg: "bg-white",
+      text: "text-gray-700",
+      hover: "hover:bg-[#1f49c4] hover:text-[#FFFFFF]",
+      ring: "focus:ring-[#2D61F0]",
+      border: "border-transparent"
     }
   };
