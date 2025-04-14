@@ -1,146 +1,97 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Calculator as CalculatorIcon } from "lucide-react";
-import axios from "axios";
-import Calculator from "@/components/ui/Calculator";
-import Multiselect from "@/components/ui/Multiselect";
+import { Pencil } from "lucide-react";
+import SelectCurrency from "@/components/ui/SelectCurrency";
 
-export default function InputMoney({ label, name, value, onChange }) {
+export default function InputMoney({ name, value, onChange }) {
   const [isFocused, setIsFocused] = useState(false);
-  const [currencyOptions, setCurrencyOptions] = useState([]);
-  const [fromCurrency, setFromCurrency] = useState(null);
-  const [toCurrency, setToCurrency] = useState(null);
-  const [showCalculator, setShowCalculator] = useState(false);
-  const [loading, setLoading] = useState(true);
+  
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState({
+    Currency: "BRL",
+    Rate: 1,
+  });
 
   const shouldFloat = isFocused || value;
 
-  const fetchCurrencyOptions = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/api/currency");
-      const ratesArray = res.data.data || [];
-
-      const options = ratesArray.map((item) => ({
-        value: item.Currency,
-        label: `${item.Currency} - ${item.Rate.toFixed(2)}`,
-        rate: item.Rate,
-      }));
-
-      setCurrencyOptions(options);
-
-      const defaultBRL = options.find((opt) => opt.value === "BRL") || options[0];
-      setFromCurrency(defaultBRL);
-      setToCurrency(defaultBRL);
-    } catch (error) {
-      console.error("Erro ao buscar moedas:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleCurrencyChange = (currencyObj) => {
+    setSelectedCurrency(currencyObj);
+    setShowCurrencyModal(false);
   };
 
-  useEffect(() => {
-    fetchCurrencyOptions();
-  }, []);
 
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = (e) => {
-    if (!e.target.value) setIsFocused(false);
-  };
-
-  const SkeletonBox = () => (
-    <div className="w-[90px] h-[36px] bg-gray-200 animate-pulse rounded-md" />
-  );
+  const convertedValue =
+    value && selectedCurrency?.Rate
+      ? (value / selectedCurrency.Rate).toFixed(2)
+      : null;
 
   return (
     <div className="w-full mb-6 relative space-y-3">
-      <motion.label
-        initial={false}
-        animate={shouldFloat ? {
-          top: "-12px",
-          left: "12px",
-          fontSize: "12px",
-          backgroundColor: "white",
-          padding: "0 4px",
-        } : {
-          top: "50%",
-          left: "16px",
-          fontSize: "16px",
-          backgroundColor: "transparent",
-          padding: "0 4px",
-          translateY: "-50%",
-        }}
-        transition={{ duration: 0.2 }}
-        className="absolute text-gray-600 pointer-events-none z-10"
-      >
-        {label}
-      </motion.label>
+      {convertedValue && (
+        <div className="text-sm text-gray-700">
+          💰 Total em real:{" "}
+          <span className="font-semibold text-[#2D61F0]">
+            {new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(convertedValue)}
+          </span>
+        </div>
+      )}
 
-      <div className="border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#2D61F0]">
+      <div className="relative border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-[#2D61F0]">
+        <motion.label
+          initial={false}
+          animate={
+            isFocused || !value
+              ? {
+                  top: "-10px",
+                  left: "12px",
+                  fontSize: "12px",
+                  opacity: 1,
+                  backgroundColor: "white",
+                  padding: "0 4px",
+                }
+              : {
+                  opacity: 0,
+                }
+          }
+          transition={{ duration: 0.2 }}
+          className="absolute text-gray-600 pointer-events-none z-10"
+        >
+          valor:
+        </motion.label>
+
         <input
           type="number"
           name={name}
           value={value}
           onChange={onChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onFocus={() => setIsFocused(true)}
+          onBlur={(e) => !e.target.value && setIsFocused(false)}
           className="w-full px-1 py-1 text-sm focus:outline-none"
         />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => setShowCalculator(true)}
-          className="text-gray-500 hover:text-[#2D61F0] flex items-center gap-2 text-sm"
-        >
-          <CalculatorIcon className="w-4 h-4" />
-          <span>Calculadora</span>
-        </button>
-
-        <div className="flex gap-2 items-center flex-1 justify-end">
-          <div className="flex flex-col text-[11px]">
-            <span className="text-gray-600 font-medium mb-1">Moeda padrão</span>
-            {loading ? <SkeletonBox /> : (
-              <Multiselect
-                value={fromCurrency}
-                onChange={setFromCurrency}
-                options={currencyOptions}
-                isMulti={false}
-                placeholder="Selecionar"
-                className="w-[120px] text-sm"
-              />
-            )}
-            {!loading && fromCurrency && (
-              <span className="text-[10px] text-gray-500 mt-1">{fromCurrency.value}</span>
-            )}
-          </div>
-          <div className="flex flex-col text-[11px]">
-            <span className="text-gray-600 font-medium mb-1">Recebido em</span>
-            {loading ? <SkeletonBox /> : (
-              <Multiselect
-                value={toCurrency}
-                onChange={setToCurrency}
-                options={currencyOptions}
-                isMulti={false}
-                placeholder="Selecionar"
-                className="w-[120px] text-sm"
-              />
-            )}
-            {!loading && toCurrency && (
-              <span className="text-[10px] text-gray-500 mt-1">{toCurrency.value}</span>
-            )}
-          </div>
+      <div className="flex justify-between items-center gap-4 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-600">
+            {`Recebido em: ${selectedCurrency.Currency}`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowCurrencyModal(true)}
+            className="text-gray-400 hover:text-[#2D61F0] cursor-pointer"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {showCalculator && (
-        <Calculator
-          onClose={() => setShowCalculator(false)}
-          onResult={(calcValue) => {
-            onChange({ target: { name, value: calcValue } });
-            setShowCalculator(false);
-          }}
+      {showCurrencyModal && (
+        <SelectCurrency
+          onClose={() => setShowCurrencyModal(false)}
+          onSelect={handleCurrencyChange}
         />
       )}
     </div>

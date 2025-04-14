@@ -31,7 +31,7 @@ export default function InputText({ label, name, value, onChange, type = "text",
             translateY: "-50%"
           }}
           transition={{ duration: 0.2 }}
-          className="absolute text-gray-600 pointer-events-none z-10"
+          className="absolute text-gray-600 pointer-events-none"
         >
           {label}
         </motion.label>

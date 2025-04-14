@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Trash } from "lucide-react";
 import axios from "axios";
 import Button from "@/components/ui/Button";
 import InputText from "@/components/ui/InputText";
@@ -9,24 +9,25 @@ import Calendar from "@/components/ui/Calendar";
 import Toggle from "@/components/ui/Toggle";
 import Multiselect from "@/components/ui/Multiselect";
 
-export default function FormData({ type, onClose, onSubmit }) {
+export default function FormDataEdit({ transaction, onClose, onSubmit }) {
   const [form, setForm] = useState({
-    amount: "",
-    received: false,
-    date: new Date(),
-    description: "",
-    category: null,
+    amount: transaction.amount || "",
+    received: transaction.status || false,
+    date: new Date(transaction.date),
+    description: transaction.description || "",
+    category: transaction.category || null,
   });
 
   const [categoryOptions, setCategoryOptions] = useState([]);
-
-  const isRenda = type === "renda";
+  const isRenda = transaction.type === "income";
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const formattedType = isRenda ? "income" : "outcome";
-        const res = await axios.get(`/api/categories?category_type=${formattedType}`);
+        const res = await axios.get(
+          `/api/categories?category_type=${formattedType}`
+        );
         const options = (res.data || []).map((cat) => ({
           value: cat.id,
           label: cat.label,
@@ -38,7 +39,7 @@ export default function FormData({ type, onClose, onSubmit }) {
     };
 
     fetchCategories();
-  }, [type]);
+  }, [transaction.type]);
 
   const handleChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
@@ -61,24 +62,42 @@ export default function FormData({ type, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-
       const payload = {
         amount: parseFloat(form.amount),
-        description: form.description || "",
+        description: form.description,
         date: form.date.toISOString(),
-        type: isRenda ? "income" : "outcome",
         status: form.received,
-        received: form.received,
-        categories: form.category,
       };
 
-      await axios.post("/api/transaction/create", payload);
+      // Update transaction
+      await axios.put(`/api/transaction/${transaction.id}`, payload);
 
-      if (onSubmit) onSubmit();
-      if (onClose) onClose();
+      // Update category relationship
+      if (form.category) {
+        await axios.post(`/api/transaction/${transaction.id}/categories`, {
+          category_id: form.category.value,
+        });
+      }
+
+      onSubmit?.();
+      onClose?.();
     } catch (err) {
-      console.error("Erro ao criar transação:", err);
-      alert("Não foi possível salvar. Verifique os dados.");
+      console.error("Erro ao atualizar transação:", err);
+      alert("Não foi possível atualizar.");
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = confirm("Deseja realmente deletar esta transação?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`/api/transaction/${transaction.id}`);
+      onSubmit?.();
+      onClose?.();
+    } catch (err) {
+      console.error("Erro ao deletar transação:", err);
+      alert("Erro ao deletar.");
     }
   };
 
@@ -106,9 +125,18 @@ export default function FormData({ type, onClose, onSubmit }) {
             <X className="w-5 h-5" />
           </button>
 
-          <h2 className="text-lg font-bold mb-4 text-[#2D61F0]">
-            {isRenda ? "Adicionar Renda" : "Adicionar Despesa"}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#2D61F0]">
+              Editar {isRenda ? "Renda" : "Despesa"}
+            </h2>
+            <button
+              onClick={handleDelete}
+              className="text-red-500 hover:text-red-700 transition pr-4"
+              title="Deletar transação"
+            >
+              <Trash className="w-5 h-5" />
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-8 mt-6">
             <InputMoney
@@ -132,7 +160,9 @@ export default function FormData({ type, onClose, onSubmit }) {
             />
 
             <div className="text-sm">
-              <span className="block mb-1 text-gray-700 font-medium">Categoria</span>
+              <span className="block mb-1 text-gray-700 font-medium">
+                Categoria
+              </span>
               <Multiselect
                 isMulti={false}
                 value={form.category}
@@ -151,9 +181,9 @@ export default function FormData({ type, onClose, onSubmit }) {
               type="text"
             />
 
-            <div className="pt-2">
+            <div className="flex flex-col gap-2 pt-2">
               <Button type="submit" variant="primary" className="w-full">
-                Salvar
+                Salvar Alterações
               </Button>
             </div>
           </form>

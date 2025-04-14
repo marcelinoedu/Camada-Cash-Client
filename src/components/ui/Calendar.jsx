@@ -5,8 +5,15 @@ import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
-export default function Calendar({ label = "Data", date, onChange }) {
+export default function Calendar({ label = "Data", value, onChange }) {
   const [show, setShow] = useState(false);
+
+  const handleSelect = (selectedDate) => {
+    if (selectedDate) {
+      onChange(selectedDate);
+      setShow(false);
+    }
+  };
 
   return (
     <div className="w-full relative mb-6">
@@ -17,9 +24,13 @@ export default function Calendar({ label = "Data", date, onChange }) {
       <button
         type="button"
         onClick={() => setShow((prev) => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-[#2D61F0]"
+        className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-[#2D61F0] bg-white"
       >
-        <span>{date ? format(date, "dd/MM/yyyy") : "Selecionar data"}</span>
+        <span>
+          {value
+            ? format(value, "dd/MM/yyyy")
+            : "Selecionar data"}
+        </span>
         <CalendarDays className="w-5 h-5 text-gray-500" />
       </button>
 
@@ -30,17 +41,15 @@ export default function Calendar({ label = "Data", date, onChange }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-16 left-0 bg-white border shadow-lg rounded-xl z-50"
-            onClick={(e) => e.stopPropagation()}
+            className="absolute top-16 left-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg"
           >
             <DayPicker
               mode="single"
-              selected={date}
-              onSelect={(selected) => {
-                if (selected) {
-                  onChange(selected);
-                  setShow(false);
-                }
+              selected={value}
+              onSelect={handleSelect}
+              modifiersClassNames={{
+                selected: "bg-[#2D61F0] text-white",
+                today: "text-[#2D61F0] font-semibold",
               }}
               className="p-3"
             />

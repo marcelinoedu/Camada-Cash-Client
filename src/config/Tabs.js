@@ -11,14 +11,14 @@ export const Tabs = [
     href: "/transactions",
     icon: List,
   },
-  {
-    label: "Perfil",
-    href: "/profile",
-    icon: User,
-  },
-  {
-    label: "Configurações",
-    href: "/settings",
-    icon: Settings,
-  },
+  // {
+  //   label: "Perfil",
+  //   href: "/profile",
+  //   icon: User,
+  // },
+  // {
+  //   label: "Configurações",
+  //   href: "/settings",
+  //   icon: Settings,
+  // },
 ];
